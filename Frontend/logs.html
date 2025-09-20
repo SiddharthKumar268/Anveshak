@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logs - Dashboard</title>
+<style>
+  :root {
+    --bg: #23262a;
+    --card: #17181a;
+    --accent: #ff7a1a;
+    --accent-dark: #c65a00;
+    --muted: #bfc5c9;
+    --hover-glow: rgba(255, 122, 26, 0.3);
+  }
+
+  body {
+    font-family: Inter, sans-serif;
+    margin: 0;
+    padding: 28px;
+    background: linear-gradient(180deg, #1d2023 0%, #25282b 100%);
+    color: #e6e9eb;
+  }
+
+  h1 {
+    color: var(--accent);
+    font-family: Orbitron, sans-serif;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  th, td {
+    margin:5px;
+    padding: 12px 16px;
+    text-align: left;
+    border: none;
+    color: #e6e9eb;
+  }
+
+  th {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  tr {
+    transition: all 0.3s ease;
+  }
+
+  tr:hover {
+    box-shadow: 0 0 12px var(--hover-glow) inset;
+    background: rgba(255, 122, 26, 0.05);
+  }
+    .add-btn {
+    background: var(--accent);
+    color: #111;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 20px;
+    transition: all 0.2s;
+  }
+
+  .add-btn:hover {
+    background: var(--accent-dark);
+  }
+</style>
+</head>
+<body>
+  <a href="dashboard.html" class="add-btn" style="margin-bottom:16px;">← Back</a>
+  <h1>System Logs</h1>
+  <a href="detect.html" class="add-btn" style="margin-bottom:16px;">Check Anomalies</a>
+  <table id="logsTable">
+    <thead>
+      <tr>
+        <th>Time</th>
+        <th>Source</th>
+        <th>Level</th>
+        <th>Message</th>
+        <th>User</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+<script>
+async function loadLogs() {
+  try {
+    const res = await fetch("http://localhost:5000/api/logs");
+    const logs = await res.json();
+    const tbody = document.querySelector("#logsTable tbody");
+    tbody.innerHTML = "";
+    logs.forEach(log => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${new Date(log.createdAt).toLocaleString()}</td>
+        <td>${log.source}</td>
+        <td>${log.level.toUpperCase()}</td>
+        <td>${log.message}</td>
+        <td>${log.user}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch(err) {
+    console.error(err);
+  }
+}
+
+loadLogs();
+</script>
+</body>
+</html>

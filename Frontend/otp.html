@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enter OTP</title>
+<style>
+body, html {margin:0; padding:0; font-family: "Segoe UI", sans-serif; background:#98c79c; height:100%;}
+.outer-wrapper {display:flex; justify-content:center; align-items:center; height:100vh;}
+.card {background:#fdfaf4; border-radius:12px; padding:2rem; width:350px; box-shadow:0 10px 30px rgba(0,0,0,0.1);}
+input {width:100%; padding:0.75rem; margin-bottom:1rem; border:1px solid #ccc; border-radius:8px; font-size:14px;}
+button {width:100%; padding:0.75rem; background:#aed6b3; border:none; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;}
+</style>
+</head>
+<body>
+<div class="outer-wrapper">
+  <div class="card">
+    <h2>Verify OTP</h2>
+    <p>Enter the 6-digit code sent to your email</p>
+    <form id="otpForm">
+      <input type="text" placeholder="OTP" name="otp" maxlength="6" required />
+      <button type="submit">Verify OTP</button>
+    </form>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("otpForm");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const otp = form.otp.value.trim();
+    const email = localStorage.getItem("loginEmail"); // get stored email
+
+    if(!otp || !email){ alert("Missing OTP or email. Go back to login."); return; }
+
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/verify-otp", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({email, otp})
+      });
+
+      const data = await res.json();
+      if(res.ok){
+        // ✅ OTP verified → store JWT
+        localStorage.setItem("token", data.token);
+        localStorage.removeItem("loginEmail"); // clean up
+        window.location.href = "dashboard.html"; // redirect to dashboard
+      } else {
+        alert(data.error || "OTP verification failed");
+      }
+    } catch(err){
+      console.error(err);
+      alert("Server error during OTP verification!");
+    }
+  });
+});
+</script>
+</body>
+</html>

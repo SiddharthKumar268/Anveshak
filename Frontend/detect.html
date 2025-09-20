@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anomaly Detection</title>
+<style>
+  body { font-family: Inter, sans-serif; background:#23262a; color:#e6e9eb; padding:28px; }
+  input, textarea, button { margin:10px 0; padding:8px; border-radius:6px; border:none; width:100%; }
+  button { background:#ff7a1a; color:#111; cursor:pointer; font-weight:bold; font-size:16px; }
+  .result { margin-top:20px; font-weight:bold; padding:12px; border-radius:6px; background:rgba(255,122,26,0.1); }
+  
+</style>
+</head>
+<body>
+<a href="logs.html" class="add-btn" style="margin-bottom:16px;">← Back to Logs</a>
+<h1>Anomaly Detection</h1>
+
+<textarea id="logMessage" rows="4" placeholder="Enter log or message..."></textarea>
+<button id="detectBtn">Detect Anomaly</button>
+
+<div class="result" id="result"></div>
+
+<script>
+// Preset anomaly messages
+const presetMessages = [
+  "Unauthorized login attempt",
+  "Database timeout error",
+  "File system breach detected",
+  "Multiple failed login attempts",
+  "Suspicious outbound traffic",
+  "High memory usage alert",
+  "Service unavailable error",
+  "Ransomware signature detected",
+  "Invalid configuration change",
+  "Network port scan detected",
+  "Privilege escalation attempt",
+  "Failed backup process",
+  "Unexpected shutdown detected",
+  "Malware executable found",
+  "CPU spike anomaly",
+  "Unusual API request pattern",
+  "Corrupted log entry detected",
+  "Permission denied anomaly",
+  "Login from unknown device"
+];
+
+const severities = ["LOW", "MEDIUM", "HIGH"];
+
+document.getElementById("detectBtn").addEventListener("click", async () => {
+    const userMessage = document.getElementById("logMessage").value.trim();
+    if(!userMessage) return alert("Please enter a log message");
+
+    // API call to pretend network request
+    try {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        console.log("Pretend API called with:", userMessage);
+    } catch(err) {
+        console.error("API call failed (simulated)", err);
+    }
+
+    // Pick one message from list
+    const randomMessage = presetMessages[Math.floor(Math.random() * presetMessages.length)];
+
+    // Random severity
+    const anomaly = Math.random() < 0.7; // 70% chance of anomaly
+    let severity;
+    if(anomaly){
+        severity = severities[Math.floor(Math.random() * 2) + 1]; // MEDIUM or HIGH
+    } else {
+        severity = "LOW";
+    }
+
+    document.getElementById("result").innerHTML = `"${randomMessage}" → ${anomaly ? "Anomaly Detected!" : "No anomaly"} (Severity: ${severity})`;
+});
+</script>
+
+</body>
+</html>

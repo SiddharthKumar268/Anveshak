@@ -1,0 +1,1087 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Anveshak — Cybersecurity Dashboard (Replica)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;600&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #23262a;
+      --frame: #111213;
+      --card: #17181a;
+      --panel: #151718;
+      --muted: #bfc5c9;
+      --accent: #ff7a1a;
+      /* orange */
+      --accent-dark: #c65a00;
+      --glass: rgba(255, 255, 255, 0.03);
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg, #1d2023 0%, #25282b 100%);
+      color: #e6e9eb;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      padding: 28px;
+    }
+
+    /* Header */
+    .header {
+      background: var(--frame);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 14px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .logo {
+      font-family: Orbitron, sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 2px;
+    }
+
+    .nav {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav a {
+      color: #d6dbe0;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.3s;
+    }
+
+    .nav a:hover {
+      color: var(--accent);
+    }
+
+    .header button {
+      background: var(--accent);
+      color: #111;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .header button:hover {
+      background: var(--accent-dark);
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 24px;
+      background: var(--frame);
+      text-align: center;
+      padding: 10px;
+      font-size: 13px;
+      color: var(--muted);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 0 0 12px 12px;
+    }
+
+    /* outer frame to mimic the screenshot rounded tablet */
+    .stage {
+      max-width: 1280px;
+      margin: 0 auto;
+      background: linear-gradient(180deg, #111214 0%, #151617 100%);
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    /* grid layout */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      grid-gap: 22px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.06));
+      border-radius: 12px;
+      padding: 18px;
+      border: 1px solid rgba(0, 0, 0, 0.45);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Left main large card (flow) */
+    .main-card {
+      min-height: 430px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 28px;
+    }
+
+    .title {
+      font-family: Orbitron, Inter;
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 2px;
+      font-size: 18px
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #dfe6e9;
+      opacity: 0.95
+    }
+
+    .output-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      margin-top: 8px
+    }
+
+    .output-left {
+      min-width: 240px;
+    }
+
+    .output-left .label {
+      font-size: 14px;
+      color: #e9eef0;
+      opacity: 0.9
+    }
+
+    .output-left .big {
+      font-size: 36px;
+      font-weight: 700;
+      margin-top: 8px
+    }
+
+    .output-left .mini {
+      color: var(--muted);
+      margin-top: 16px
+    }
+
+    /* canvas area for the flows */
+    .flow-canvas {
+      flex: 1;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* right stats list similar to the source with toggles */
+    .ports {
+      width: 220px;
+      margin-left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: flex-start;
+      justify-content: flex-start
+    }
+
+    .port-item {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      align-items: center
+    }
+
+    .port-label {
+      font-size: 13px;
+      color: #d6dbe0
+    }
+
+    .port-value {
+      font-size: 13px;
+      color: #d6dbe0;
+      opacity: 0.95
+    }
+
+    .toggle {
+      width: 46px;
+      height: 24px;
+      background: #1a1b1c;
+      border-radius: 18px;
+      display: inline-flex;
+      align-items: center;
+      padding: 3px;
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.03)
+    }
+
+    .toggle .dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #2e3133;
+      margin-left: auto;
+      transition: all .18s
+    }
+
+    .toggle.on .dot {
+      background: var(--accent);
+      margin-left: 3px
+    }
+
+    /* right column panels */
+    .side-column {
+      display: flex;
+      flex-direction: column;
+      gap: 18px
+    }
+
+    .device-card {
+      height: 260px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-align: center;
+      padding: 24px
+    }
+
+    .device-title {
+      font-family: Orbitron;
+      color: var(--accent);
+      letter-spacing: 1.5px
+    }
+
+    .device-visual {
+      width: 100%;
+      height: 140px;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #0e0f11, #26282a);
+      box-shadow: inset 0 -20px 40px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.02)
+    }
+
+    .knob {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: #1a1b1c;
+  transition: all 0.2s;
+  border: 3px solid rgba(255,255,255,0.03);
+}
+
+.knob.on {
+  border-color: #ff7a1a; /* knob border turns yellow */
+}
+
+.knob i {
+  color: #555; /* default grey */
+  font-size: 20px;
+  transition: color 0.2s;
+}
+
+.knob.on i {
+  color: #ff7a1a; /* icon turns yellow when on */
+}
+
+    
+
+    /* gauge card */
+    .gauge-card {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px
+    }
+
+    .gauge-title {
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 1px
+    }
+
+    .gauge {
+      width: 210px;
+      height: 110px;
+      position: relative;
+      display: grid;
+      place-items: center;
+      --pct: 74;
+      /* default */
+    }
+
+    .gauge .arc {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      background: conic-gradient(var(--accent) calc(var(--pct) * 1%), rgba(255, 255, 255, 0.06) 0);
+      mask: linear-gradient(#000 0 0);
+      clip-path: inset(0 0 50% 0 round 50px 50px 0 0);
+      border-radius: 50%;
+      filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.6));
+    }
+
+    .gauge .circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #0e0f10, #141516);
+      display: grid;
+      place-items: center;
+      border: 6px solid rgba(255, 255, 255, 0.03);
+      z-index: 2
+    }
+
+    .gauge .percent {
+      font-size: 20px;
+      font-weight: 600
+    }
+
+    .gauge small {
+      color: var(--muted)
+    }
+
+    /* bottom details area */
+    .bottom-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 18px
+    }
+
+    .details-card {
+      padding: 18px
+    }
+
+    .details-card h4 {
+      color: var(--accent);
+      font-family: Orbitron;
+      margin: 0 0 10px
+    }
+
+    .details-card p {
+      margin: 6px 0;
+      color: #dbe1e6
+    }
+
+    .logs-card pre {
+      background: #0f1112;
+      padding: 12px;
+      border-radius: 8px;
+      color: #cfe6ff;
+      margin: 0;
+      min-height: 120px;
+      overflow: auto;
+      border: 1px solid rgba(255, 255, 255, 0.02)
+    }
+
+    /* dotted background overlay like the image */
+    .dots::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 18px 18px;
+      opacity: 0.08;
+      pointer-events: none
+    }
+
+    /* Modal overlay */
+    /* ===== Add Source Modal ===== */
+    #addSourceModal {
+      display: none;
+      /* hidden by default, toggled by JS */
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    #addSourceModal.flex {
+      display: flex;
+    }
+
+    #addSourceModal>div {
+      background: var(--panel);
+      color: #e6e9eb;
+      border-radius: 12px;
+      padding: 24px 28px;
+      width: 400px;
+      max-width: 95%;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    #addSourceModal h2 {
+      font-family: Orbitron, sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--accent);
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    #addSourceModal label {
+      font-size: 13px;
+      color: #d6dbe0;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    #addSourceModal input,
+    #addSourceModal select {
+      width: 100%;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: var(--card);
+      color: #e6e9eb;
+      font-size: 14px;
+      transition: border 0.3s, background 0.3s;
+    }
+
+    #addSourceModal input:focus,
+    #addSourceModal select:focus {
+      border-color: var(--accent);
+      outline: none;
+      background: rgba(30, 30, 30, 0.9);
+    }
+
+    /* Buttons inside modal */
+    #addSourceModal button {
+      padding: 6px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.25s;
+    }
+
+    #cancelAddSource {
+      background: #555;
+      color: #fff;
+    }
+
+    #cancelAddSource:hover {
+      background: #333;
+      transform: translateY(-2px);
+    }
+
+    #addSourceForm button[type="submit"] {
+      background: var(--accent);
+      color: #111;
+    }
+
+    #addSourceForm button[type="submit"]:hover {
+      background: var(--accent-dark);
+      transform: translateY(-2px);
+    }
+
+    /* ===== Connected Sources List ===== */
+    #sourcesList {
+      margin-top: 12px;
+      max-height: 250px;
+      overflow-y: auto;
+      padding-left: 20px;
+    }
+
+    #sourcesList li {
+      margin-bottom: 8px;
+      color: #dbe1e6;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+
+    #sourcesList li:hover {
+      color: var(--accent);
+    }
+
+    /* Source list container */
+    .bg-white.p-4.rounded.shadow.mt-6 {
+      background: var(--panel);
+      padding: 20px 24px;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      color: #e6e9eb;
+    }
+
+    /* Add Source Button */
+    #addSourceBtn {
+      background: #22c55e;
+      /* nice green */
+      color: #fff;
+      padding: 6px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.25s;
+    }
+
+    #addSourceBtn:hover {
+      background: #16a34a;
+      transform: translateY(-2px);
+    }
+
+    /* Smooth fade-in animation */
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Scrollbar for list */
+    #sourcesList::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #sourcesList::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+
+    #sourcesList::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+
+    .gauge {
+  width: 210px;
+  height: 110px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden; /* ensure arc doesn't escape */
+}
+
+.gauge .arc {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) rotate(0deg); /* start at 0deg */
+  transform-origin: center bottom; /* rotate around bottom center */
+  background: conic-gradient(var(--accent) calc(var(--pct) * 1%), rgba(255, 255, 255, 0.06) 0);
+  clip-path: inset(0 0 50% 0 round 50px 50px 0 0);
+  transition: transform 0.5s ease; /* smooth rotation */
+  z-index: 1;
+}
+
+.gauge .circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #0e0f10, #141516);
+  display: grid;
+  place-items: center;
+  border: 6px solid rgba(255, 255, 255, 0.03);
+  z-index: 2; /* always on top */
+  position: relative;
+}
+
+
+
+    /* responsive */
+    @media (max-width:1024px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .side-column {
+        order: 2
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <div class="logo">ANVESHAK</div>
+    <nav class="nav">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="incidents.html">Incidents</a>
+      <a href="logs.html">Logs</a>
+      <a href="source.html">Sources</a>
+      <a href="blockchain.html">Blockchain HashTSX</a>
+
+    </nav>
+    <button id="logoutBtn">Logout</button>
+  </header>
+  <div class="stage">
+    <div class="grid">
+      <!-- LEFT BIG CARD: Flow -->
+      <div class="card main-card dots">
+        <div class="title">THREAT FLOW</div>
+        <div class="output-row">
+          <div class="output-left">
+            <div class="label">OUTPUT</div>
+            <div class="big" id="outputCount">38 ALERTS +</div>
+            <div class="mini">12 HR UPTIME</div>
+            <div style="color:var(--accent); margin-top:10px; font-weight:600">MEDIUM LOAD</div>
+            <div style="margin-top:12px">
+              <button id="addSource"
+                style="background:var(--accent); color:#111; border:none; padding:8px 10px; border-radius:8px; cursor:pointer">ADD
+                SOURCE +</button>
+            </div>
+          </div>
+
+          <div class="flow-canvas" style="flex:1;">
+            <!-- Inline SVG drawing for curved flows -->
+            <svg viewBox="0 0 980 220" preserveAspectRatio="none" style="width:100%;height:220px;">
+              <defs>
+                <linearGradient id="g1" x1="0" x2="1">
+                  <stop offset="0%" stop-color="#ff9a4a" />
+                  <stop offset="60%" stop-color="#ff7a1a" />
+                </linearGradient>
+                <linearGradient id="g2" x1="0" x2="1">
+                  <stop offset="0%" stop-color="#6e6e6e" />
+                  <stop offset="100%" stop-color="#2b2b2b" />
+                </linearGradient>
+              </defs>
+
+              <!-- left source box -->
+              <rect x="20" y="80" width="70" height="60" rx="8" fill="#ff7a1a" />
+              <g transform="translate(34,100)" fill="#111">
+                <path d="M6 0 L12 9 L4 9 L10 20 L0 10 L8 10 z" fill="#fff" transform="scale(1.2)" />
+              </g>
+
+              <!-- background lines -->
+              <path d="M90 110 C260 30, 460 30, 640 110" stroke="url(#g1)" stroke-width="10" fill="none"
+                stroke-linecap="round" opacity="1" />
+              <path d="M90 120 C260 60, 460 60, 640 120" stroke="url(#g2)" stroke-width="8" fill="none"
+                stroke-linecap="round" opacity="0.9" />
+              <path d="M90 140 C260 120, 460 120, 640 140" stroke="url(#g1)" stroke-width="6" fill="none"
+                stroke-linecap="round" opacity="0.9" />
+
+              <!-- right endpoints with little ticks -->
+              <g transform="translate(640,40)">
+                <rect x="260" y="20" width="120" height="28" rx="8" fill="#0d0e10" stroke="rgba(255,255,255,0.03)" />
+                <text x="268" y="38" fill="#dbe1e6" font-size="12">Main AC</text>
+                <text x="368" y="38" fill="#ff7a1a" font-size="12">30 KWH</text>
+              </g>
+
+              <!-- subtle dotted pattern low opacity -->
+            </svg>
+          </div>
+
+          <div class="ports">
+            <div class="port-item">
+              <div class="port-label">Main Logs</div>
+              <div class="port-value" id="mainLogsCount">0</div>
+            </div>
+            <div class="port-item">
+              <div class="port-label">Incidents</div>
+              <div class="port-value" id="incidentsCount">0</div>
+            </div>
+            <div class="port-item">
+              <div class="port-label">Blockchain</div>
+              <div class="port-value" id="blockchainCount">0</div>
+            </div>
+            <div class="port-item">
+              <div class="port-label">Anomalies</div>
+              <div class="port-value" id="anomaliesCount">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- bottom mini row inside main card - placeholder small tiles like screenshot -->
+        <div style="display:flex; gap:12px; margin-top:18px">
+          <div
+            style="flex:1; background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.04)); border-radius:10px; padding:12px; border:1px solid rgba(255,255,255,0.02)">
+            <div style="font-size:12px; color:var(--muted);">DETAILS</div>
+            <div style="margin-top:8px; font-size:13px">Mode: <strong id="detailMode">--</strong></div>
+            <div style="margin-top:6px; font-size:13px">Time: <strong id="detailTime">--</strong></div>
+          </div>
+
+          <div
+            style="width:120px; background:linear-gradient(180deg,#161718,#0f1011); border-radius:10px; padding:10px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.02)">
+            <div style="font-size:12px; color:var(--muted)">VOLT</div>
+            <div style="font-size:20px; margin-left:10px" id="detailVolt">--</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: device + gauge -->
+      <div class="side-column">
+        <div class="card device-card">
+          <div class="device-title">ANVESHAK</div>
+          <div style="font-size:12px; color:#bfc5c9;" id="deviceMode">X-boost mode</div>
+          <div class="device-visual" id="deviceVisual">
+            <!-- placeholder for later asset -->
+          </div>
+
+          <div class="knob" id="powerKnob" title="Toggle power">
+            <div class="ring" style="border:6px solid rgba(255,255,255,0.03); border-radius:50%"></div>
+            <i style="color:#ff7a1a">&#9679;</i>
+          </div>
+          <div style="font-size:12px; color:#bfc5c9" id="powerStatus">POWER</div>
+        </div>
+
+        <div class="card gauge-card">
+          <div class="gauge-title">ALERT MODE</div>
+          <div class="gauge" id="gauge">
+            <div class="arc" id="gaugeArc"></div>
+            <div class="circle">
+              <div class="percent" id="gaugePct">74%</div>
+            </div>
+          </div>
+          <small id="gaugeInfo">Input: 200 Events | 5/s</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- bottom two cards -->
+    <div class="bottom-row">
+      <div class="card details-card">
+        <h4>DETAILS</h4>
+        <p>Mode: <strong id="dMode">X-BOOST</strong></p>
+        <p>Time: <strong id="dTime">3H 15M</strong></p>
+        <p>Frequency: <strong id="dFreq">50HZ</strong></p>
+        <p>Temp: <strong id="dTemp">30°C</strong></p>
+        <p>Current: <strong id="dCurrent">10A</strong></p>
+      </div>
+
+      <div class="card logs-card">
+        <h4 style="color:var(--accent);">LIVE LOGS</h4>
+        <pre id="logStream">Waiting for logs...</pre>
+      </div>
+    </div>
+    <!-- ✅ Add Source Modal + Source List -->
+    <!-- Add Source Modal -->
+    <div id="addSourceModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div class="bg-white p-6 rounded-lg w-96">
+        <h2 class="text-lg font-bold mb-4">Add New Source</h2>
+        <form id="addSourceForm">
+          <label class="block mb-2">Source Name</label>
+          <input type="text" id="sourceName" class="w-full border p-2 mb-4" required>
+          <label class="block mb-2">API URL</label>
+          <input type="url" id="sourceUrl" class="w-full border p-2 mb-4" required>
+          <label class="block mb-2">Type</label>
+          <select id="sourceType" class="w-full border p-2 mb-4">
+            <option value="firewall">Firewall</option>
+            <option value="sensor">Sensor</option>
+            <option value="server">Server</option>
+            <option value="custom">Custom</option>
+          </select>
+          <div class="flex justify-end gap-2">
+            <button type="button" id="cancelAddSource" class="px-3 py-1 bg-gray-400 text-white rounded">Cancel</button>
+            <button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Source List -->
+    <div class="bg-white p-4 rounded shadow mt-6">
+      <div class="flex justify-between items-center">
+        <h2 class="text-lg font-bold mb-2">Connected Sources</h2>
+        <button id="addSourceBtn" class="px-3 py-1 bg-green-600 text-white rounded">+ Add Source</button>
+      </div>
+
+    </div>
+  </div>
+  <!-- Footer -->
+  <footer class="footer">
+    © 2025 Anveshak — Cybersecurity Threat Detection
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Please login first!");
+        window.location.href = "login.html";
+        return;
+      }
+
+      // Helper function for API calls with auth
+      async function fetchAPI(endpoint) {
+        const res = await fetch(`http://localhost:5000/api/${endpoint}`, {
+          headers: {
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json"
+          }
+        });
+        if (res.status === 401 || res.status === 403) {
+          alert("Session expired or invalid token. Login again.");
+          localStorage.removeItem("token");
+          window.location.href = "login.html";
+          return null;
+        }
+        return res.ok ? res.json() : null;
+      }
+
+      try {
+        // 🔹 Logs
+        const logs = await fetchAPI("logs");
+        if (logs) {
+          document.getElementById("mainLogsCount").textContent = logs.length;
+
+          const anomalies = logs.filter(l => l.level === "warning");
+          document.getElementById("anomaliesCount").textContent = anomalies.length;
+
+          const logStream = document.getElementById("logStream");
+          logStream.innerHTML = "";
+          logs.slice(-20).reverse().forEach(log => {
+            const div = document.createElement("div");
+            div.className = "p-2 mb-2 border-b border-gray-700 hover:bg-gray-800 rounded";
+            div.innerHTML = `
+          <p>
+            <span class="text-yellow-400 font-semibold">[${log.level.toUpperCase()}]</span>
+            <span class="text-green-400">${log.source}</span> → ${log.message}
+          </p>
+          <p class="text-xs text-gray-500">
+            ${new Date(log.createdAt).toLocaleString()}
+          </p>
+        `;
+            logStream.appendChild(div);
+          });
+        }
+
+        // 🔹 Incidents
+        const incidents = await fetchAPI("incidents");
+        if (incidents) {
+          document.getElementById("incidentsCount").textContent = incidents.length;
+        }
+
+        // 🔹 Blockchain
+        const blockchain = await fetchAPI("blockchain");
+        if (blockchain) {
+          document.getElementById("blockchainCount").textContent = blockchain.length;
+        }
+
+      } catch (err) {
+        console.error(err);
+        alert("Server error!");
+      }
+
+      // ✅ Add Source Logic
+
+      // Load sources initially
+      async function loadSources() {
+        const res = await fetch("http://localhost:5000/api/sources", {
+          headers: { "Authorization": "Bearer " + token }
+        });
+        if (!res.ok) return;
+        const sources = await res.json();
+        const list = document.getElementById("sourcesList");
+        list.innerHTML = "";
+        sources.forEach(src => {
+          const li = document.createElement("li");
+          li.textContent = `${src.name} (${src.type}) - ${src.url}`;
+          list.appendChild(li);
+        });
+      }
+
+      // Handle add source form
+      document.getElementById("addSourceForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const name = document.getElementById("sourceName").value;
+        const url = document.getElementById("sourceUrl").value;
+        const type = document.getElementById("sourceType").value;
+
+        const res = await fetch("http://localhost:5000/api/sources", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
+          body: JSON.stringify({ name, url, type })
+        });
+
+        if (res.ok) {
+          await loadSources();
+          document.getElementById("addSourceModal").classList.add("hidden");
+          document.getElementById("addSourceForm").reset();
+        } else {
+          alert("Error adding source");
+        }
+      });
+
+      // Modal controls
+      document.getElementById("addSourceBtn").addEventListener("click", () => {
+        document.getElementById("addSourceModal").classList.remove("hidden");
+      });
+      document.getElementById("cancelAddSource").addEventListener("click", () => {
+        document.getElementById("addSourceModal").classList.add("hidden");
+      });
+
+      // Initial load
+      loadSources();
+    });
+
+    // ✅ Logout
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("token");
+      window.location.href = "login.html";
+    });
+    const addSourceModal = document.getElementById("addSourceModal");
+    const addSourceBtn = document.getElementById("addSourceBtn");
+    const cancelAddSource = document.getElementById("cancelAddSource");
+
+    // Open modal
+    addSourceBtn.addEventListener("click", () => {
+      addSourceModal.classList.remove("hidden");
+      addSourceModal.classList.add("flex"); // so flex layout works
+    });
+
+    // Close modal
+    cancelAddSource.addEventListener("click", () => {
+      addSourceModal.classList.add("hidden");
+      addSourceModal.classList.remove("flex");
+    });
+
+    // Optional: close modal when clicking outside the box
+    addSourceModal.addEventListener("click", (e) => {
+      if (e.target === addSourceModal) {
+        addSourceModal.classList.add("hidden");
+        addSourceModal.classList.remove("flex");
+      }
+    });
+
+    const customBtn = document.getElementById("addSource");
+    const modalBtn = document.getElementById("addSourceBtn");
+
+    customBtn.addEventListener("click", () => {
+      modalBtn.click(); // simulate click on the modal open button
+    });
+    // Random Mode generator
+    const modes = ["X-BOOST", "SAFE", "AUTO", "MANUAL", "OVERRIDE"];
+    const randomMode = () => modes[Math.floor(Math.random() * modes.length)];
+
+    // Random Time generator (e.g., hours and minutes)
+    const randomTime = () => {
+      const h = Math.floor(Math.random() * 24);
+      const m = Math.floor(Math.random() * 60);
+      return `${h}H ${m}M`;
+    }
+
+    // Random Voltage generator (e.g., 20.0V to 30.0V)
+    const randomVolt = () => (20 + Math.random() * 10).toFixed(1);
+
+    // Assign random values
+    document.getElementById("detailMode").textContent = randomMode();
+    document.getElementById("detailTime").textContent = randomTime();
+    document.getElementById("detailVolt").textContent = randomVolt();
+
+    // Optional: Update values every 5 seconds
+    setInterval(() => {
+      document.getElementById("detailMode").textContent = randomMode();
+      document.getElementById("detailTime").textContent = randomTime();
+      document.getElementById("detailVolt").textContent = randomVolt();
+    }, 5000);
+    document.addEventListener("DOMContentLoaded", () => {
+  const modes = ["X-BOOST", "SAFE", "AUTO", "MANUAL", "OVERRIDE"];
+
+  const randomMode = () => modes[Math.floor(Math.random() * modes.length)];
+  const randomPower = () => Math.random() > 0.5 ? "ON" : "OFF";
+  const randomGauge = () => Math.floor(50 + Math.random() * 50); // 50% - 100%
+  const randomEvents = () => Math.floor(50 + Math.random() * 300); // 50 - 350 events
+  const randomRate = () => (1 + Math.random() * 10).toFixed(1); // 1 - 11 /s
+
+  function updateDashboard() {
+    // Device card
+    document.getElementById("deviceMode").textContent = randomMode();
+    document.getElementById("powerStatus").textContent = randomPower();
+
+    // Gauge card
+    const pct = randomGauge();
+    document.getElementById("gaugePct").textContent = pct + "%";
+
+    document.getElementById("gaugeInfo").textContent =
+      `Input: ${randomEvents()} Events | ${randomRate()}/s`;
+
+    // Optional: animate gauge arc rotation
+    const arc = document.getElementById("gaugeArc");
+    if(arc) {
+      arc.style.transform = `rotate(${(pct / 100) * 180}deg)`; // example rotation
+    }
+  }
+
+  // Initial update
+  updateDashboard();
+
+  // Update every 3 seconds
+  setInterval(updateDashboard, 3000);
+});
+const powerKnob = document.getElementById("powerKnob");
+
+powerKnob.addEventListener("click", () => {
+  powerKnob.classList.toggle("on");
+});
+
+  // New random generators
+  const detailModes = ["X-BOOST", "SAFE", "AUTO", "MANUAL", "OVERRIDE"];
+  const getRandomMode = () => detailModes[Math.floor(Math.random() * detailModes.length)];
+
+  const getRandomDuration = () => {
+    const hours = Math.floor(Math.random() * 24);
+    const minutes = Math.floor(Math.random() * 60);
+    return `${hours}H ${minutes}M`;
+  };
+
+  const getRandomFrequency = () => `${[50, 60][Math.floor(Math.random() * 2)]}HZ`;
+
+  const getRandomTemperature = () => `${(20 + Math.random() * 15).toFixed(1)}°C`;
+
+  const getRandomCurrentValue = () => `${(5 + Math.random() * 20).toFixed(1)}A`;
+
+  function refreshDetailsCard() {
+    document.getElementById("dMode").textContent = getRandomMode();
+    document.getElementById("dTime").textContent = getRandomDuration();
+    document.getElementById("dFreq").textContent = getRandomFrequency();
+    document.getElementById("dTemp").textContent = getRandomTemperature();
+    document.getElementById("dCurrent").textContent = getRandomCurrentValue();
+  }
+
+  // Initial load
+  refreshDetailsCard();
+
+  // Refresh every 5 seconds
+  setInterval(refreshDetailsCard, 5000);
+  </script>
+
+
+</body>
+
+</html>

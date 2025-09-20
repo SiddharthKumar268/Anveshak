@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Incident</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #23262a;
+      --frame: #111213;
+      --card: #17181a;
+      --panel: #151718;
+      --muted: #bfc5c9;
+      --accent: #ff7a1a;
+      --accent-dark: #c65a00;
+      --glass: rgba(255, 255, 255, 0.03);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: Inter, system-ui;
+      background: linear-gradient(180deg, #1d2023 0%, #25282b 100%);
+      color: #e6e9eb; padding: 28px;
+    }
+
+    h1 { font-family: Orbitron; color: var(--accent); letter-spacing: 2px; }
+
+    .stage {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: linear-gradient(180deg, #111214 0%, #151617 100%);
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.02);
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 30px;
+    }
+
+    label { font-weight: 600; color: #d6dbe0; }
+    input, select, textarea {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.03);
+      color: #e6e9eb;
+      outline: none;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border: 1px solid var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    button {
+      width: 120px;
+      padding: 8px 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #111;
+      background: var(--accent);
+      transition: all 0.2s;
+    }
+
+    button:hover { background: var(--accent-dark); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    table thead tr {
+      background: rgba(255,255,255,0.05);
+    }
+
+    table th, table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      transition: all 0.2s;
+    }
+
+    table tbody tr:hover {
+      background: rgba(255,122,26,0.05);
+      box-shadow: inset 0 0 8px var(--accent);
+    }
+
+    .glass-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+    }
+
+  </style>
+</head>
+<body>
+<button id="backButton" style="
+  margin-bottom: 16px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #111;
+  background: var(--accent);
+  transition: all 0.2s;
+">← Back</button>
+
+  <div class="stage">
+    <h1>Add Incident</h1>
+
+    <div class="glass-card">
+      <form id="incidentForm">
+        <label>Description</label>
+        <textarea id="description" rows="3" placeholder="Enter incident description..." required></textarea>
+
+        <label>Source Log ID (optional)</label>
+        <input type="text" id="sourceLogId" placeholder="MongoDB Log ID">
+
+        <label>Severity</label>
+        <select id="severity">
+          <option value="low">Low</option>
+          <option value="medium" selected>Medium</option>
+          <option value="high">High</option>
+        </select>
+
+        <button type="submit">Add Incident</button>
+      </form>
+    </div>
+
+    <div class="glass-card">
+      <h2>Existing Incidents</h2>
+      <table id="incidentsTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Description</th>
+            <th>Source Log ID</th>
+            <th>Severity</th>
+            <th>Acknowledged</th>
+            <th>Created At</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Fetched incidents will appear here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+
+<script>
+// Fetch existing incidents
+async function fetchIncidents() {
+  try {
+    const res = await fetch("http://localhost:5000/api/incidents");
+    const data = await res.json();
+    const tbody = document.querySelector("#incidentsTable tbody");
+    tbody.innerHTML = "";
+
+    data.forEach(inc => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${inc._id}</td>
+        <td>${inc.description}</td>
+        <td>${inc.sourceLogId || "-"}</td>
+        <td>${inc.severity}</td>
+        <td>${inc.acknowledged ? "Yes" : "No"}</td>
+        <td>${new Date(inc.createdAt).toLocaleString()}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (err) {
+    console.error("Error fetching incidents:", err);
+  }
+}
+
+// Add new incident
+document.getElementById("incidentForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const description = document.getElementById("description").value;
+  const sourceLogId = document.getElementById("sourceLogId").value;
+  const severity = document.getElementById("severity").value;
+
+  try {
+    const res = await fetch("http://localhost:5000/api/incidents/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ description, sourceLogId, severity })
+    });
+    const result = await res.json();
+
+    if (res.ok) {
+      alert(result.message);
+      document.getElementById("incidentForm").reset();
+      fetchIncidents();
+    } else {
+      alert(result.message || "Failed to add incident");
+    }
+  } catch (err) {
+    console.error("Error adding incident:", err);
+    alert("Error adding incident");
+  }
+});
+const backButton = document.getElementById("backButton");
+
+backButton.addEventListener("click", () => {
+  window.history.back();
+});
+
+backButton.addEventListener("mouseover", () => {
+  backButton.style.background = 'var(--accent-dark)';
+  backButton.style.color = '#fff';
+});
+backButton.addEventListener("mouseout", () => {
+  backButton.style.background = 'var(--accent)';
+  backButton.style.color = '#111';
+});
+document.getElementById("backButton").addEventListener("click", () => {
+  window.location.href = "dashboard.html";
+});
+
+
+// Initial load
+fetchIncidents();
+</script>
+
+
+</body>
+</html>
