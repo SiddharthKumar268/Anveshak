@@ -1,62 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Enter OTP</title>
-<style>
-body, html {margin:0; padding:0; font-family: "Segoe UI", sans-serif; background:#98c79c; height:100%;}
-.outer-wrapper {display:flex; justify-content:center; align-items:center; height:100vh;}
-.card {background:#fdfaf4; border-radius:12px; padding:2rem; width:350px; box-shadow:0 10px 30px rgba(0,0,0,0.1);}
-input {width:100%; padding:0.75rem; margin-bottom:1rem; border:1px solid #ccc; border-radius:8px; font-size:14px;}
-button {width:100%; padding:0.75rem; background:#aed6b3; border:none; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify OTP</title>
+  <style>
+    /* Background */
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #0f2d1c, #1e392a);
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Card Container */
+    .card {
+      background: rgba(34, 56, 40, 0.95);
+      border-radius: 16px;
+      width: 750px;
+      max-width: 95%;
+      display: flex;
+      overflow: hidden;
+      box-shadow: 8px 8px 16px #0a1f14, -8px -8px 16px #1a3d28;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      box-shadow: 10px 10px 20px #0a1f14, -10px -10px 20px #1a3d28;
+    }
+
+    /* Left Side (Form) */
+    .left {
+      flex: 1;
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .left h2 {
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+
+    .left p {
+      color: #ccc;
+      margin-bottom: 2rem;
+      font-size: 14px;
+    }
+
+    form input,
+    form button {
+      width: 100%;
+      padding: 0.9rem;
+      border-radius: 12px;
+      font-size: 15px;
+      box-sizing: border-box;
+      margin-bottom: 1rem;
+      border: none;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    /* OTP Input */
+    form input {
+      text-align: center;
+      letter-spacing: 0.4rem;
+      font-size: 18px;
+      background: #223828;
+      color: #fff;
+      box-shadow: inset 4px 4px 8px #1a2e21, inset -4px -4px 8px #2c4633;
+    }
+
+    form input:focus {
+      box-shadow: inset 2px 2px 5px #1a2e21, inset -2px -2px 5px #2c4633;
+    }
+
+    /* Verify Button */
+    form button {
+      background: #a8d5b9;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 4px 4px 8px #1a2e21, -4px -4px 8px #2c4633;
+    }
+
+    form button:hover {
+      background: #93caa6;
+      box-shadow: 2px 2px 6px #1a2e21, -2px -2px 6px #2c4633;
+    }
+
+    /* Right Side (Image) */
+    .right {
+      flex: 1;
+      background: #223828;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    .right img {
+      max-width: 90%;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 8px 8px 16px #1a2e21, -8px -8px 16px #2c4633;
+      transition: all 0.3s ease;
+    }
+
+    .right img:hover {
+      transform: scale(1.05);
+      box-shadow: 10px 10px 20px #1a2e21, -10px -10px 20px #2c4633;
+    }
+
+    /* Brand Title */
+    .brand {
+      position: absolute;
+      top: 40px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #fff;
+      text-align: center;
+      width: 100%;
+      text-shadow: 0 0 15px rgba(255,255,255,0.5);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .card {
+        flex-direction: column;
+      }
+      .right {
+        display: none; /* hide image on small screens */
+      }
+    }
+  </style>
 </head>
 <body>
-<div class="outer-wrapper">
+  <div class="brand">Anveshak</div>
+
   <div class="card">
-    <h2>Verify OTP</h2>
-    <p>Enter the 6-digit code sent to your email</p>
-    <form id="otpForm">
-      <input type="text" placeholder="OTP" name="otp" maxlength="6" required />
-      <button type="submit">Verify OTP</button>
-    </form>
+    <!-- Left (OTP Form) -->
+    <div class="left">
+      <h2>Verify OTP</h2>
+      <p>Enter the 6-digit code sent to your email</p>
+      <form id="otpForm">
+        <input type="text" placeholder="• • • • • •" name="otp" maxlength="6" required />
+        <button type="submit">Verify OTP</button>
+      </form>
+    </div>
+
+    <!-- Right (Image Section) -->
+    <div class="right">
+      <img src="../assets/login4.jpg" alt="OTP Illustration">
+    </div>
   </div>
-</div>
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("otpForm");
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("otpForm");
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const otp = form.otp.value.trim();
-    const email = localStorage.getItem("loginEmail"); // get stored email
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const otp = form.otp.value.trim();
+        const email = localStorage.getItem("loginEmail");
 
-    if(!otp || !email){ alert("Missing OTP or email. Go back to login."); return; }
+        if (!otp || !email) {
+          alert("Missing OTP or email. Go back to login.");
+          return;
+        }
 
-    try {
-      const res = await fetch("http://localhost:5000/api/auth/verify-otp", {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({email, otp})
+        try {
+          const res = await fetch("http://localhost:5000/api/auth/verify-otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, otp })
+          });
+
+          const data = await res.json();
+          if (res.ok) {
+            localStorage.setItem("token", data.token);
+            localStorage.removeItem("loginEmail");
+            window.location.href = "dashboard.html";
+          } else {
+            alert(data.error || "OTP verification failed");
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Server error during OTP verification!");
+        }
       });
-
-      const data = await res.json();
-      if(res.ok){
-        // ✅ OTP verified → store JWT
-        localStorage.setItem("token", data.token);
-        localStorage.removeItem("loginEmail"); // clean up
-        window.location.href = "dashboard.html"; // redirect to dashboard
-      } else {
-        alert(data.error || "OTP verification failed");
-      }
-    } catch(err){
-      console.error(err);
-      alert("Server error during OTP verification!");
-    }
-  });
-});
-</script>
+    });
+  </script>
 </body>
 </html>
